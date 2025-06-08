@@ -1,0 +1,1406 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام إدارة مجموعات الدرس</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            background-color: #ddd;
+            cursor: pointer;
+            margin-left: 5px;
+            border-radius: 5px 5px 0 0;
+        }
+        .tab.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+            background-color: white;
+            padding: 20px;
+            border-radius: 0 5px 5px 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .tab-content.active {
+            display: block;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+            position: relative;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .paid {
+            color: green;
+            font-weight: bold;
+        }
+        .unpaid {
+            color: red;
+            font-weight: bold;
+        }
+        .payment-form {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .report-section {
+            background-color: #e9f7ef;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .report-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .report-option {
+            flex: 1;
+            min-width: 200px;
+        }
+        .sort-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            margin-right: 5px;
+            padding: 2px 5px;
+            color: white;
+        }
+        .sort-btn:hover {
+            background-color: #45a049;
+            border-radius: 3px;
+        }
+        .print-btn {
+            background-color: #2196F3;
+            margin-top: 10px;
+        }
+        .print-btn:hover {
+            background-color: #0b7dda;
+        }
+        .delete-btn {
+            background-color: #f44336;
+        }
+        .delete-btn:hover {
+            background-color: #d32f2f;
+        }
+        .edit-btn {
+            background-color: #FFC107;
+            color: #000;
+        }
+        .edit-btn:hover {
+            background-color: #E0A800;
+        }
+        .backup-btn {
+            background-color: #9C27B0;
+        }
+        .backup-btn:hover {
+            background-color: #7B1FA2;
+        }
+        .restore-btn {
+            background-color: #FF9800;
+        }
+        .restore-btn:hover {
+            background-color: #F57C00;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 5px;
+        }
+        .close {
+            color: #aaa;
+            float: left;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover {
+            color: black;
+        }
+        .class-tabs {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        .class-tab {
+            padding: 8px 15px;
+            background-color: #e0e0e0;
+            cursor: pointer;
+            margin-left: 5px;
+            border-radius: 4px;
+        }
+        .class-tab.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .print-content, .print-content * {
+                visibility: visible;
+            }
+            .print-content {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                padding: 20px;
+                font-size: 14pt;
+            }
+            .print-table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            .print-table th, .print-table td {
+                border: 1px solid #000;
+                padding: 8px;
+                text-align: center;
+            }
+            .print-table th {
+                background-color: #f2f2f2 !important;
+                color: #000 !important;
+            }
+            button {
+                display: none !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            @page {
+                size: A4 portrait;
+                margin: 1cm;
+            }
+        }
+        @media (max-width: 768px) {
+            .tabs, .class-tabs {
+                flex-direction: column;
+            }
+            .tab, .class-tab {
+                margin-bottom: 5px;
+                margin-left: 0;
+            }
+            .report-options {
+                flex-direction: column;
+            }
+            .modal-content {
+                width: 90%;
+                margin: 20% auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>نظام إدارة مجموعات الدرس المدفوعة</h1>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" onclick="openTab('students')">إدارة الطلاب</div>
+            <div class="tab" onclick="openTab('payments')">تسجيل المدفوعات</div>
+            <div class="tab" onclick="openTab('reports')">التقارير</div>
+            <div class="tab" onclick="openTab('backup')">النسخ الاحتياطي</div>
+        </div>
+
+        <div id="students" class="tab-content active">
+            <h2>إدارة الطلاب</h2>
+            
+            <div class="form-group">
+                <label for="classSelect">اختر الصف:</label>
+                <select id="classSelect">
+                    <option value="class1">الصف الأول</option>
+                    <option value="class2">الصف الثاني</option>
+                    <option value="class3">الصف الثالث</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="studentName">اسم الطالب:</label>
+                <input type="text" id="studentName" placeholder="أدخل اسم الطالب">
+            </div>
+            <div class="form-group">
+                <label for="registrationDate">تاريخ الإضافة:</label>
+                <input type="date" id="registrationDate">
+            </div>
+            <button onclick="addStudent()">إضافة طالب</button>
+
+            <h3>قائمة الطلاب</h3>
+            
+            <div class="class-tabs">
+                <div class="class-tab active" onclick="filterStudents('all')">الكل</div>
+                <div class="class-tab" onclick="filterStudents('class1')">الصف الأول</div>
+                <div class="class-tab" onclick="filterStudents('class2')">الصف الثاني</div>
+                <div class="class-tab" onclick="filterStudents('class3')">الصف الثالث</div>
+            </div>
+            
+            <button class="print-btn" onclick="printStudentsTable()">طباعة قائمة الطلاب</button>
+            <table id="studentsTable">
+                <thead>
+                    <tr>
+                        <th>اسم الطالب 
+                            <button class="sort-btn" onclick="sortStudentsTable(0, true)">▲</button>
+                            <button class="sort-btn" onclick="sortStudentsTable(0, false)">▼</button>
+                        </th>
+                        <th>الصف
+                            <button class="sort-btn" onclick="sortStudentsTable(1, true)">▲</button>
+                            <button class="sort-btn" onclick="sortStudentsTable(1, false)">▼</button>
+                        </th>
+                        <th>تاريخ الإضافة
+                            <button class="sort-btn" onclick="sortStudentsTable(2, true)">▲</button>
+                            <button class="sort-btn" onclick="sortStudentsTable(2, false)">▼</button>
+                        </th>
+                        <th>إجراءات</th>
+                    </tr>
+                </thead>
+                <tbody id="studentsList">
+                    <!-- سيتم ملؤها بالبيانات -->
+                </tbody>
+            </table>
+        </div>
+
+        <div id="payments" class="tab-content">
+            <h2>تسجيل المدفوعات</h2>
+            
+            <div class="payment-form">
+                <div class="form-group">
+                    <label for="paymentClass">اختر الصف:</label>
+                    <select id="paymentClass" onchange="loadClassStudents()">
+                        <option value="">-- اختر الصف --</option>
+                        <option value="class1">الصف الأول</option>
+                        <option value="class2">الصف الثاني</option>
+                        <option value="class3">الصف الثالث</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="paymentStudent">اختر الطالب:</label>
+                    <select id="paymentStudent" disabled>
+                        <option value="">-- اختر الطالب --</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="paymentAmount">المبلغ المدفوع:</label>
+                    <input type="number" id="paymentAmount" placeholder="أدخل المبلغ">
+                </div>
+                
+                <div class="form-group">
+                    <label for="paymentDate">تاريخ الدفع:</label>
+                    <input type="date" id="paymentDate">
+                </div>
+                
+                <div class="form-group">
+                    <label for="receivedBy">المستلم:</label>
+                    <select id="receivedBy">
+                        <option value="أ. علاء">أ. علاء</option>
+                        <option value="أ. إبراهيم">أ. إبراهيم</option>
+                    </select>
+                </div>
+                
+                <button onclick="recordPayment()">تسجيل الدفع</button>
+            </div>
+            
+            <h3>سجل المدفوعات</h3>
+            <button class="print-btn" onclick="printPaymentsTable()">طباعة سجل المدفوعات</button>
+            <table id="paymentsTable">
+                <thead>
+                    <tr>
+                        <th>اسم الطالب
+                            <button class="sort-btn" onclick="sortPaymentsTable(0, true)">▲</button>
+                            <button class="sort-btn" onclick="sortPaymentsTable(0, false)">▼</button>
+                        </th>
+                        <th>الصف
+                            <button class="sort-btn" onclick="sortPaymentsTable(1, true)">▲</button>
+                            <button class="sort-btn" onclick="sortPaymentsTable(1, false)">▼</button>
+                        </th>
+                        <th>المبلغ
+                            <button class="sort-btn" onclick="sortPaymentsTable(2, true)">▲</button>
+                            <button class="sort-btn" onclick="sortPaymentsTable(2, false)">▼</button>
+                        </th>
+                        <th>التاريخ
+                            <button class="sort-btn" onclick="sortPaymentsTable(3, true)">▲</button>
+                            <button class="sort-btn" onclick="sortPaymentsTable(3, false)">▼</button>
+                        </th>
+                        <th>المستلم
+                            <button class="sort-btn" onclick="sortPaymentsTable(4, true)">▲</button>
+                            <button class="sort-btn" onclick="sortPaymentsTable(4, false)">▼</button>
+                        </th>
+                        <th>إجراءات</th>
+                    </tr>
+                </thead>
+                <tbody id="paymentsList">
+                    <!-- سيتم ملؤها بالبيانات -->
+                </tbody>
+            </table>
+        </div>
+
+        <div id="reports" class="tab-content">
+            <h2>التقارير</h2>
+            
+            <div class="report-section">
+                <h3>تقارير حسب الطالب</h3>
+                <div class="report-options">
+                    <div class="report-option">
+                        <label for="reportStudentClass">اختر الصف:</label>
+                        <select id="reportStudentClass" onchange="loadStudentsForReport()">
+                            <option value="">-- جميع الصفوف --</option>
+                            <option value="class1">الصف الأول</option>
+                            <option value="class2">الصف الثاني</option>
+                            <option value="class3">الصف الثالث</option>
+                        </select>
+                    </div>
+                    <div class="report-option">
+                        <label for="reportStudent">اختر الطالب:</label>
+                        <select id="reportStudent" disabled>
+                            <option value="">-- اختر الطالب --</option>
+                        </select>
+                    </div>
+                    <div class="report-option">
+                        <button onclick="generateStudentReport()">إنشاء التقرير</button>
+                    </div>
+                </div>
+                
+                <div id="studentReportResult" class="print-content"></div>
+                <button class="print-btn" onclick="printReport('studentReportResult')">طباعة التقرير</button>
+            </div>
+            
+            <div class="report-section">
+                <h3>تقارير حسب الصف</h3>
+                <div class="report-options">
+                    <div class="report-option">
+                        <label for="reportClass">اختر الصف:</label>
+                        <select id="reportClass">
+                            <option value="">-- جميع الصفوف --</option>
+                            <option value="class1">الصف الأول</option>
+                            <option value="class2">الصف الثاني</option>
+                            <option value="class3">الصف الثالث</option>
+                        </select>
+                    </div>
+                    <div class="report-option">
+                        <label for="reportDateFrom">من تاريخ:</label>
+                        <input type="date" id="reportDateFrom">
+                    </div>
+                    <div class="report-option">
+                        <label for="reportDateTo">إلى تاريخ:</label>
+                        <input type="date" id="reportDateTo">
+                    </div>
+                    <div class="report-option">
+                        <button onclick="generateClassReport()">إنشاء التقرير</button>
+                    </div>
+                </div>
+                
+                <div id="classReportResult" class="print-content"></div>
+                <button class="print-btn" onclick="printReport('classReportResult')">طباعة التقرير</button>
+            </div>
+            
+            <div class="report-section">
+                <h3>تقارير المدفوعات</h3>
+                <div class="report-options">
+                    <div class="report-option">
+                        <label for="reportPaymentDateFrom">من تاريخ:</label>
+                        <input type="date" id="reportPaymentDateFrom">
+                    </div>
+                    <div class="report-option">
+                        <label for="reportPaymentDateTo">إلى تاريخ:</label>
+                        <input type="date" id="reportPaymentDateTo">
+                    </div>
+                    <div class="report-option">
+                        <label for="reportReceiver">المستلم:</label>
+                        <select id="reportReceiver">
+                            <option value="">-- الكل --</option>
+                            <option value="أ. علاء">أ. علاء</option>
+                            <option value="أ. إبراهيم">أ. إبراهيم</option>
+                        </select>
+                    </div>
+                    <div class="report-option">
+                        <button onclick="generatePaymentsReport()">إنشاء التقرير</button>
+                    </div>
+                </div>
+                
+                <div id="paymentsReportResult" class="print-content"></div>
+                <button class="print-btn" onclick="printReport('paymentsReportResult')">طباعة التقرير</button>
+            </div>
+        </div>
+
+        <div id="backup" class="tab-content">
+            <h2>النسخ الاحتياطي والاستعادة</h2>
+            
+            <div class="report-section">
+                <h3>إنشاء نسخة احتياطية</h3>
+                <p>قم بحفظ جميع بيانات النظام في ملف يمكن استعادته لاحقاً</p>
+                <button class="backup-btn" onclick="createBackup()">إنشاء نسخة احتياطية</button>
+                <div id="backupResult" style="margin-top: 15px;"></div>
+            </div>
+            
+            <div class="report-section">
+                <h3>استعادة نسخة احتياطية</h3>
+                <p>استعد البيانات من ملف نسخة احتياطية سابق</p>
+                <div class="form-group">
+                    <label for="backupFile">اختر ملف النسخة الاحتياطية:</label>
+                    <input type="file" id="backupFile" accept=".json">
+                </div>
+                <button class="restore-btn" onclick="restoreBackup()">استعادة النسخة</button>
+                <div id="restoreResult" style="margin-top: 15px;"></div>
+            </div>
+            
+            <div class="report-section">
+                <h3>حذف جميع البيانات</h3>
+                <p>تحذير: هذا الإجراء سيحذف جميع بيانات النظام ولا يمكن التراجع عنه</p>
+                <button class="delete-btn" onclick="confirmDeleteAllData()">حذف جميع البيانات</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نموذج تعديل المدفوعات -->
+    <div id="editPaymentModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditModal()">&times;</span>
+            <h2>تعديل المدفوعات</h2>
+            
+            <input type="hidden" id="editPaymentId">
+            
+            <div class="form-group">
+                <label for="editPaymentAmount">المبلغ المدفوع:</label>
+                <input type="number" id="editPaymentAmount">
+            </div>
+            
+            <div class="form-group">
+                <label for="editPaymentDate">تاريخ الدفع:</label>
+                <input type="date" id="editPaymentDate">
+            </div>
+            
+            <div class="form-group">
+                <label for="editReceivedBy">المستلم:</label>
+                <select id="editReceivedBy">
+                    <option value="أ. علاء">أ. علاء</option>
+                    <option value="أ. إبراهيم">أ. إبراهيم</option>
+                </select>
+            </div>
+            
+            <button onclick="updatePayment()">حفظ التعديلات</button>
+            <button class="delete-btn" onclick="deletePayment()">حذف المدفوعات</button>
+        </div>
+    </div>
+
+    <!-- نموذج تأكيد حذف جميع البيانات -->
+    <div id="confirmDeleteModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeDeleteModal()">&times;</span>
+            <h2>تأكيد حذف جميع البيانات</h2>
+            <p>هل أنت متأكد أنك تريد حذف جميع بيانات النظام؟ هذا الإجراء لا يمكن التراجع عنه.</p>
+            <p>ينصح بإنشاء نسخة احتياطية قبل المتابعة.</p>
+            <button class="delete-btn" onclick="deleteAllData()">نعم، احذف جميع البيانات</button>
+            <button onclick="closeDeleteModal()">إلغاء</button>
+        </div>
+    </div>
+
+    <script>
+        
+        // تخزين البيانات
+        let students = JSON.parse(localStorage.getItem('students')) || [];
+        let payments = JSON.parse(localStorage.getItem('payments')) || [];
+
+        // دالة لتحويل تنسيق التاريخ من YYYY-MM-DD إلى DD/MM/YYYY
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+
+        // تهيئة الصفحة عند التحميل
+        window.onload = function() {
+            updateStudentsTable();
+            document.getElementById('paymentDate').valueAsDate = new Date();
+            document.getElementById('registrationDate').valueAsDate = new Date();
+            loadPaymentsTable();
+            
+            // تعيين التواريخ الافتراضية للتقارير
+            const today = new Date();
+            const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+            
+            document.getElementById('reportDateFrom').valueAsDate = firstDayOfMonth;
+            document.getElementById('reportDateTo').valueAsDate = today;
+            document.getElementById('reportPaymentDateFrom').valueAsDate = firstDayOfMonth;
+            document.getElementById('reportPaymentDateTo').valueAsDate = today;
+        };
+
+        // تبديل بين التبويبات
+        function openTab(tabName) {
+            const tabs = document.getElementsByClassName('tab-content');
+            for (let i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove('active');
+            }
+            document.getElementById(tabName).classList.add('active');
+
+            const tabButtons = document.getElementsByClassName('tab');
+            for (let i = 0; i < tabButtons.length; i++) {
+                tabButtons[i].classList.remove('active');
+            }
+            event.currentTarget.classList.add('active');
+        }
+
+        // تصفية الطلاب حسب الصف
+        function filterStudents(classValue) {
+            const tabs = document.querySelectorAll('.class-tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            
+            updateStudentsTable(classValue);
+        }
+
+        // إضافة طالب جديد
+        function addStudent() {
+            const classSelect = document.getElementById('classSelect');
+            const studentName = document.getElementById('studentName').value.trim();
+            const registrationDate = document.getElementById('registrationDate').value;
+
+            if (!studentName) {
+                alert('الرجاء إدخال اسم الطالب');
+                return;
+            }
+
+            if (!registrationDate) {
+                alert('الرجاء تحديد تاريخ الإضافة');
+                return;
+            }
+
+            const classValue = classSelect.value;
+            let className = '';
+
+            switch(classValue) {
+                case 'class1':
+                    className = 'الصف الأول';
+                    break;
+                case 'class2':
+                    className = 'الصف الثاني';
+                    break;
+                case 'class3':
+                    className = 'الصف الثالث';
+                    break;
+            }
+
+            const student = {
+                id: Date.now(),
+                name: studentName,
+                class: classValue,
+                className: className,
+                registrationDate: registrationDate
+            };
+
+            students.push(student);
+            saveData();
+            updateStudentsTable();
+            document.getElementById('studentName').value = '';
+            document.getElementById('registrationDate').valueAsDate = new Date();
+        }
+
+        // تحميل الطلاب حسب الصف المختار
+        function loadClassStudents() {
+            const classValue = document.getElementById('paymentClass').value;
+            const studentSelect = document.getElementById('paymentStudent');
+            
+            studentSelect.innerHTML = '<option value="">-- اختر الطالب --</option>';
+            
+            if (!classValue) {
+                studentSelect.disabled = true;
+                return;
+            }
+            
+            studentSelect.disabled = false;
+            
+            const classStudents = students.filter(student => student.class === classValue);
+            
+            if (classStudents.length === 0) {
+                studentSelect.innerHTML = '<option value="">لا يوجد طلاب في هذا الصف</option>';
+                return;
+            }
+            
+            classStudents.forEach(student => {
+                const option = document.createElement('option');
+                option.value = student.id;
+                option.textContent = student.name;
+                studentSelect.appendChild(option);
+            });
+        }
+
+        // تحميل الطلاب للتقرير
+        function loadStudentsForReport() {
+            const classValue = document.getElementById('reportStudentClass').value;
+            const studentSelect = document.getElementById('reportStudent');
+            
+            studentSelect.innerHTML = '<option value="">-- جميع الطلاب --</option>';
+            
+            if (!classValue) {
+                studentSelect.disabled = true;
+                return;
+            }
+            
+            studentSelect.disabled = false;
+            
+            const classStudents = students.filter(student => student.class === classValue);
+            
+            if (classStudents.length === 0) {
+                studentSelect.innerHTML = '<option value="">لا يوجد طلاب في هذا الصف</option>';
+                return;
+            }
+            
+            classStudents.forEach(student => {
+                const option = document.createElement('option');
+                option.value = student.id;
+                option.textContent = student.name;
+                studentSelect.appendChild(option);
+            });
+        }
+
+        // تسجيل دفعة جديدة
+        function recordPayment() {
+            const classValue = document.getElementById('paymentClass').value;
+            const studentId = document.getElementById('paymentStudent').value;
+            const amount = document.getElementById('paymentAmount').value;
+            const date = document.getElementById('paymentDate').value;
+            const receivedBy = document.getElementById('receivedBy').value;
+
+            if (!classValue || !studentId || !amount || !date) {
+                alert('الرجاء ملء جميع الحقول المطلوبة');
+                return;
+            }
+
+            const student = students.find(s => s.id == studentId);
+            if (!student) {
+                alert('الطالب غير موجود');
+                return;
+            }
+
+            const payment = {
+                id: Date.now(),
+                studentId: parseInt(studentId),
+                studentName: student.name,
+                class: classValue,
+                className: student.className,
+                amount: parseFloat(amount),
+                date: date,
+                receivedBy: receivedBy,
+                month: new Date(date).getMonth() + 1,
+                year: new Date(date).getFullYear()
+            };
+
+            payments.push(payment);
+            saveData();
+            alert('تم تسجيل الدفع بنجاح');
+            loadPaymentsTable();
+            
+            // إعادة تعيين الحقول
+            document.getElementById('paymentAmount').value = '';
+            document.getElementById('paymentDate').valueAsDate = new Date();
+        }
+
+        // تحديث جدول الطلاب
+        function updateStudentsTable(classFilter = 'all') {
+            const tableBody = document.getElementById('studentsList');
+            tableBody.innerHTML = '';
+
+            let filteredStudents = students;
+            if (classFilter !== 'all') {
+                filteredStudents = students.filter(student => student.class === classFilter);
+            }
+
+            filteredStudents.forEach(student => {
+                const row = document.createElement('tr');
+                
+                // اسم الطالب
+                const nameCell = document.createElement('td');
+                nameCell.textContent = student.name;
+                row.appendChild(nameCell);
+                
+                // الصف
+                const classCell = document.createElement('td');
+                classCell.textContent = student.className;
+                row.appendChild(classCell);
+                
+                // تاريخ الإضافة
+                const dateCell = document.createElement('td');
+                dateCell.textContent = formatDate(student.registrationDate);
+                row.appendChild(dateCell);
+                
+                // إجراءات
+                const actionsCell = document.createElement('td');
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = 'حذف';
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.onclick = function() {
+                    if (confirm(`هل أنت متأكد من حذف الطالب ${student.name}؟`)) {
+                        students = students.filter(s => s.id !== student.id);
+                        payments = payments.filter(p => p.studentId !== student.id);
+                        saveData();
+                        updateStudentsTable(classFilter);
+                        loadPaymentsTable();
+                    }
+                };
+                actionsCell.appendChild(deleteBtn);
+                row.appendChild(actionsCell);
+                
+                tableBody.appendChild(row);
+            });
+        }
+
+        // تحميل جدول المدفوعات
+        function loadPaymentsTable() {
+            const tableBody = document.getElementById('paymentsList');
+            tableBody.innerHTML = '';
+
+            // ترتيب المدفوعات من الأحدث إلى الأقدم
+            const sortedPayments = [...payments].sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            sortedPayments.forEach(payment => {
+                const row = document.createElement('tr');
+                
+                // اسم الطالب
+                const nameCell = document.createElement('td');
+                nameCell.textContent = payment.studentName;
+                row.appendChild(nameCell);
+                
+                // الصف
+                const classCell = document.createElement('td');
+                classCell.textContent = payment.className;
+                row.appendChild(classCell);
+                
+                // المبلغ
+                const amountCell = document.createElement('td');
+                amountCell.textContent = payment.amount + ' جنيه';
+                row.appendChild(amountCell);
+                
+                // التاريخ
+                const dateCell = document.createElement('td');
+                dateCell.textContent = formatDate(payment.date);
+                row.appendChild(dateCell);
+                
+                // المستلم
+                const receivedCell = document.createElement('td');
+                receivedCell.textContent = payment.receivedBy;
+                row.appendChild(receivedCell);
+                
+                // إجراءات
+                const actionsCell = document.createElement('td');
+                
+                // زر التعديل
+                const editBtn = document.createElement('button');
+                editBtn.textContent = 'تعديل';
+                editBtn.className = 'edit-btn';
+                editBtn.onclick = function() {
+                    openEditModal(payment);
+                };
+                actionsCell.appendChild(editBtn);
+                
+                row.appendChild(actionsCell);
+                
+                tableBody.appendChild(row);
+            });
+        }
+
+        // فتح نموذج التعديل
+        function openEditModal(payment) {
+            document.getElementById('editPaymentId').value = payment.id;
+            document.getElementById('editPaymentAmount').value = payment.amount;
+            document.getElementById('editPaymentDate').value = payment.date;
+            document.getElementById('editReceivedBy').value = payment.receivedBy;
+            
+            document.getElementById('editPaymentModal').style.display = 'block';
+        }
+
+        // إغلاق نموذج التعديل
+        function closeEditModal() {
+            document.getElementById('editPaymentModal').style.display = 'none';
+        }
+
+        // تحديث المدفوعات بعد التعديل
+        function updatePayment() {
+            const paymentId = document.getElementById('editPaymentId').value;
+            const amount = document.getElementById('editPaymentAmount').value;
+            const date = document.getElementById('editPaymentDate').value;
+            const receivedBy = document.getElementById('editReceivedBy').value;
+
+            if (!amount || !date) {
+                alert('الرجاء ملء جميع الحقول المطلوبة');
+                return;
+            }
+
+            const paymentIndex = payments.findIndex(p => p.id == paymentId);
+            if (paymentIndex === -1) {
+                alert('المدفوعات غير موجودة');
+                return;
+            }
+
+            payments[paymentIndex].amount = parseFloat(amount);
+            payments[paymentIndex].date = date;
+            payments[paymentIndex].receivedBy = receivedBy;
+            payments[paymentIndex].month = new Date(date).getMonth() + 1;
+            payments[paymentIndex].year = new Date(date).getFullYear();
+
+            saveData();
+            alert('تم تحديث المدفوعات بنجاح');
+            loadPaymentsTable();
+            closeEditModal();
+        }
+
+        // حذف المدفوعات
+        function deletePayment() {
+            const paymentId = document.getElementById('editPaymentId').value;
+
+            if (confirm('هل أنت متأكد من حذف هذه المدفوعات؟')) {
+                payments = payments.filter(p => p.id != paymentId);
+                saveData();
+                alert('تم حذف المدفوعات بنجاح');
+                loadPaymentsTable();
+                closeEditModal();
+            }
+        }
+
+        // إنشاء تقرير الطالب
+        function generateStudentReport() {
+            const studentId = document.getElementById('reportStudent').value;
+            const resultDiv = document.getElementById('studentReportResult');
+            
+            if (!studentId) {
+                alert('الرجاء اختيار طالب');
+                return;
+            }
+            
+            const student = students.find(s => s.id == studentId);
+            if (!student) {
+                alert('الطالب غير موجود');
+                return;
+            }
+            
+            const studentPayments = payments.filter(p => p.studentId == studentId)
+                                          .sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            let html = `<h4>تقرير الطالب: ${student.name} - ${student.className}</h4>`;
+            html += `<p>تاريخ الإضافة: ${formatDate(student.registrationDate)}</p>`;
+            
+            if (studentPayments.length === 0) {
+                html += '<p>لا توجد مدفوعات مسجلة لهذا الطالب</p>';
+            } else {
+                html += `<p>إجمالي المدفوعات: ${studentPayments.reduce((sum, p) => sum + p.amount, 0)} جنيه</p>`;
+                
+                html += `<table class="print-table">
+                    <thead>
+                        <tr>
+                            <th>التاريخ</th>
+                            <th>المبلغ</th>
+                            <th>المستلم</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+                
+                studentPayments.forEach(payment => {
+                    html += `<tr>
+                        <td>${formatDate(payment.date)}</td>
+                        <td>${payment.amount} جنيه</td>
+                        <td>${payment.receivedBy}</td>
+                    </tr>`;
+                });
+                
+                html += `</tbody></table>`;
+            }
+            
+            resultDiv.innerHTML = html;
+        }
+
+        // إنشاء تقرير الصف
+        function generateClassReport() {
+            const classValue = document.getElementById('reportClass').value;
+            const dateFrom = document.getElementById('reportDateFrom').value;
+            const dateTo = document.getElementById('reportDateTo').value;
+            const resultDiv = document.getElementById('classReportResult');
+            
+            if (!classValue) {
+                alert('الرجاء اختيار صف');
+                return;
+            }
+            
+            const className = classValue === 'class1' ? 'الصف الأول' : 
+                             classValue === 'class2' ? 'الصف الثاني' : 'الصف الثالث';
+            
+            // تصفية الطلاب حسب الصف والتاريخ
+            let filteredStudents = students.filter(student => student.class === classValue);
+            
+            if (dateFrom) {
+                filteredStudents = filteredStudents.filter(student => 
+                    new Date(student.registrationDate) >= new Date(dateFrom));
+            }
+            
+            if (dateTo) {
+                filteredStudents = filteredStudents.filter(student => 
+                    new Date(student.registrationDate) <= new Date(dateTo));
+            }
+            
+            let html = `<h4>تقرير ${className}</h4>`;
+            
+            if (dateFrom || dateTo) {
+                html += `<p>الفترة الزمنية: ${formatDate(dateFrom) || 'البداية'} إلى ${formatDate(dateTo) || 'النهاية'}</p>`;
+            }
+            
+            html += `<p>عدد الطلاب: ${filteredStudents.length}</p>`;
+            
+            if (filteredStudents.length === 0) {
+                html += '<p>لا توجد طلاب في هذا الصف للفترة المحددة</p>';
+            } else {
+                html += `<table class="print-table">
+                    <thead>
+                        <tr>
+                            <th>اسم الطالب</th>
+                            <th>تاريخ الإضافة</th>
+                            <th>عدد المدفوعات</th>
+                            <th>إجمالي المدفوعات</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+                
+                filteredStudents.forEach(student => {
+                    const studentPayments = payments.filter(p => p.studentId === student.id);
+                    const totalPayments = studentPayments.reduce((sum, p) => sum + p.amount, 0);
+                    
+                    html += `<tr>
+                        <td>${student.name}</td>
+                        <td>${formatDate(student.registrationDate)}</td>
+                        <td>${studentPayments.length}</td>
+                        <td>${totalPayments} جنيه</td>
+                    </tr>`;
+                });
+                
+                html += `</tbody></table>`;
+            }
+            
+            resultDiv.innerHTML = html;
+        }
+
+        // إنشاء تقرير المدفوعات
+        function generatePaymentsReport() {
+            const dateFrom = document.getElementById('reportPaymentDateFrom').value;
+            const dateTo = document.getElementById('reportPaymentDateTo').value;
+            const receiver = document.getElementById('reportReceiver').value;
+            const resultDiv = document.getElementById('paymentsReportResult');
+            
+            // تصفية المدفوعات
+            let filteredPayments = [...payments];
+            
+            if (dateFrom) {
+                filteredPayments = filteredPayments.filter(p => 
+                    new Date(p.date) >= new Date(dateFrom));
+            }
+            
+            if (dateTo) {
+                filteredPayments = filteredPayments.filter(p => 
+                    new Date(p.date) <= new Date(dateTo));
+            }
+            
+            if (receiver) {
+                filteredPayments = filteredPayments.filter(p => p.receivedBy === receiver);
+            }
+            
+            // ترتيب من الأحدث إلى الأقدم
+            filteredPayments.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            let html = `<h4>تقرير المدفوعات</h4>`;
+            
+            if (dateFrom || dateTo) {
+                html += `<p>الفترة الزمنية: ${formatDate(dateFrom) || 'البداية'} إلى ${formatDate(dateTo) || 'النهاية'}</p>`;
+            }
+            
+            if (receiver) {
+                html += `<p>المستلم: ${receiver}</p>`;
+            }
+            
+            html += `<p>عدد المدفوعات: ${filteredPayments.length}</p>`;
+            html += `<p>إجمالي المدفوعات: ${filteredPayments.reduce((sum, p) => sum + p.amount, 0)} جنيه</p>`;
+            
+            if (filteredPayments.length === 0) {
+                html += '<p>لا توجد مدفوعات للفترة المحددة</p>';
+            } else {
+                html += `<table class="print-table">
+                    <thead>
+                        <tr>
+                            <th>التاريخ</th>
+                            <th>اسم الطالب</th>
+                            <th>الصف</th>
+                            <th>المبلغ</th>
+                            <th>المستلم</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+                
+                filteredPayments.forEach(payment => {
+                    html += `<tr>
+                        <td>${formatDate(payment.date)}</td>
+                        <td>${payment.studentName}</td>
+                        <td>${payment.className}</td>
+                        <td>${payment.amount} جنيه</td>
+                        <td>${payment.receivedBy}</td>
+                    </tr>`;
+                });
+                
+                html += `</tbody></table>`;
+            }
+            
+            resultDiv.innerHTML = html;
+        }
+
+        // إنشاء نسخة احتياطية
+        function createBackup() {
+            const backupData = {
+                students: students,
+                payments: payments,
+                timestamp: new Date().toISOString()
+            };
+            
+            const dataStr = JSON.stringify(backupData, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportName = 'نسخة-احتياطية-' + formatDate(new Date().toISOString().split('T')[0]) + '.json';
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportName);
+            linkElement.click();
+            
+            document.getElementById('backupResult').innerHTML = `
+                <div style="background-color: #e8f5e9; padding: 10px; border-radius: 4px;">
+                    <p>تم إنشاء النسخة الاحتياطية بنجاح</p>
+                    <p>اسم الملف: <strong>${exportName}</strong></p>
+                </div>
+            `;
+        }
+
+        // استعادة نسخة احتياطية
+        function restoreBackup() {
+            const fileInput = document.getElementById('backupFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('الرجاء اختيار ملف النسخة الاحتياطية');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const backupData = JSON.parse(e.target.result);
+                    
+                    if (!backupData.students || !backupData.payments) {
+                        throw new Error('ملف النسخة الاحتياطية غير صالح');
+                    }
+                    
+                    if (confirm('هل أنت متأكد أنك تريد استعادة هذه النسخة الاحتياطية؟ سيتم استبدال جميع البيانات الحالية.')) {
+                        students = backupData.students;
+                        payments = backupData.payments;
+                        saveData();
+                        
+                        updateStudentsTable();
+                        loadPaymentsTable();
+                        
+                        document.getElementById('restoreResult').innerHTML = `
+                            <div style="background-color: #e8f5e9; padding: 10px; border-radius: 4px;">
+                                <p>تم استعادة النسخة الاحتياطية بنجاح</p>
+                                <p>عدد الطلاب: ${students.length}</p>
+                                <p>عدد المدفوعات: ${payments.length}</p>
+                            </div>
+                        `;
+                        
+                        fileInput.value = '';
+                    }
+                } catch (error) {
+                    alert('حدث خطأ أثناء قراءة ملف النسخة الاحتياطية: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // تأكيد حذف جميع البيانات
+        function confirmDeleteAllData() {
+            document.getElementById('confirmDeleteModal').style.display = 'block';
+        }
+
+        // إغلاق نموذج تأكيد الحذف
+        function closeDeleteModal() {
+            document.getElementById('confirmDeleteModal').style.display = 'none';
+        }
+
+        // حذف جميع البيانات
+        function deleteAllData() {
+            if (confirm('هل أنت متأكد تماماً أنك تريد حذف جميع البيانات؟ لا يمكن التراجع عن هذا الإجراء.')) {
+                students = [];
+                payments = [];
+                saveData();
+                
+                updateStudentsTable();
+                loadPaymentsTable();
+                
+                closeDeleteModal();
+                alert('تم حذف جميع البيانات بنجاح');
+            }
+        }
+
+        // حفظ البيانات في localStorage
+        function saveData() {
+            localStorage.setItem('students', JSON.stringify(students));
+            localStorage.setItem('payments', JSON.stringify(payments));
+        }
+
+        // دوال الترتيب
+        function sortStudentsTable(columnIndex, isAscending) {
+            const tableBody = document.getElementById('studentsList');
+            const rows = Array.from(tableBody.querySelectorAll('tr'));
+            
+            rows.sort((a, b) => {
+                const aValue = a.cells[columnIndex].textContent;
+                const bValue = b.cells[columnIndex].textContent;
+                
+                if (columnIndex === 2) { // إذا كان العمود تاريخ
+                    const aParts = aValue.split('/');
+                    const bParts = bValue.split('/');
+                    const aDate = new Date(`${aParts[2]}-${aParts[1]}-${aParts[0]}`);
+                    const bDate = new Date(`${bParts[2]}-${bParts[1]}-${bParts[0]}`);
+                    return isAscending ? aDate - bDate : bDate - aDate;
+                } else { // للاسم والصف
+                    return isAscending ? 
+                        aValue.localeCompare(bValue) : 
+                        bValue.localeCompare(aValue);
+                }
+            });
+            
+            // إزالة الصفوف الحالية
+            tableBody.innerHTML = '';
+            
+            // إضافة الصفوف المرتبة
+            rows.forEach(row => tableBody.appendChild(row));
+        }
+
+        function sortPaymentsTable(columnIndex, isAscending) {
+            const tableBody = document.getElementById('paymentsList');
+            const rows = Array.from(tableBody.querySelectorAll('tr'));
+            
+            rows.sort((a, b) => {
+                const aValue = a.cells[columnIndex].textContent;
+                const bValue = b.cells[columnIndex].textContent;
+                
+                if (columnIndex === 2) { // إذا كان عمود المبلغ
+                    const aNum = parseFloat(aValue);
+                    const bNum = parseFloat(bValue);
+                    return isAscending ? aNum - bNum : bNum - aNum;
+                } else if (columnIndex === 3) { // إذا كان عمود التاريخ
+                    const aParts = aValue.split('/');
+                    const bParts = bValue.split('/');
+                    const aDate = new Date(`${aParts[2]}-${aParts[1]}-${aParts[0]}`);
+                    const bDate = new Date(`${bParts[2]}-${bParts[1]}-${bParts[0]}`);
+                    return isAscending ? aDate - bDate : bDate - aDate;
+                } else { // للاسم والصف والمستلم
+                    return isAscending ? 
+                        aValue.localeCompare(bValue) : 
+                        bValue.localeCompare(aValue);
+                }
+            });
+            
+            // إزالة الصفوف الحالية
+            tableBody.innerHTML = '';
+            
+            // إضافة الصفوف المرتبة
+            rows.forEach(row => tableBody.appendChild(row));
+        }
+
+        // دوال الطباعة
+        function printStudentsTable() {
+            const printContent = `
+                <html>
+                <head>
+                    <title>قائمة الطلاب</title>
+                    <style>
+                        body { font-family: Arial; direction: rtl; padding: 20px; }
+                        h1 { text-align: center; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                        th, td { border: 1px solid #000; padding: 8px; text-align: center; }
+                        th { background-color: #f2f2f2; }
+                        @page { size: A4 portrait; margin: 1cm; }
+                    </style>
+                </head>
+                <body>
+                    <h1>قائمة الطلاب</h1>
+                    ${document.getElementById('studentsTable').outerHTML}
+                    <p style="text-align: left; margin-top: 20px;">تاريخ الطباعة: ${formatDate(new Date().toISOString().split('T')[0])}</p>
+                </body>
+                </html>
+            `;
+            
+            printAsPDF(printContent, 'قائمة الطلاب');
+        }
+
+        function printPaymentsTable() {
+            const printContent = `
+                <html>
+                <head>
+                    <title>سجل المدفوعات</title>
+                    <style>
+                        body { font-family: Arial; direction: rtl; padding: 20px; }
+                        h1 { text-align: center; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                        th, td { border: 1px solid #000; padding: 8px; text-align: center; }
+                        th { background-color: #f2f2f2; }
+                        @page { size: A4 portrait; margin: 1cm; }
+                    </style>
+                </head>
+                <body>
+                    <h1>سجل المدفوعات</h1>
+                    ${document.getElementById('paymentsTable').outerHTML.replace('<th>إجراءات</th>', '')}
+                    <p style="text-align: left; margin-top: 20px;">تاريخ الطباعة: ${formatDate(new Date().toISOString().split('T')[0])}</p>
+                </body>
+                </html>
+            `;
+            
+            printAsPDF(printContent, 'سجل المدفوعات');
+        }
+
+        function printReport(reportId) {
+            const reportContent = document.getElementById(reportId).innerHTML;
+            if (!reportContent) {
+                alert('لا يوجد محتوى للطباعة');
+                return;
+            }
+            
+            const printContent = `
+                <html>
+                <head>
+                    <title>تقرير</title>
+                    <style>
+                        body { font-family: Arial; direction: rtl; padding: 20px; }
+                        h1, h2, h3, h4 { text-align: center; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                        th, td { border: 1px solid #000; padding: 8px; text-align: center; }
+                        th { background-color: #f2f2f2; }
+                        @page { size: A4 portrait; margin: 1cm; }
+                    </style>
+                </head>
+                <body>
+                    ${reportContent}
+                    <p style="text-align: left; margin-top: 20px;">تاريخ الطباعة: ${formatDate(new Date().toISOString().split('T')[0])}</p>
+                </body>
+                </html>
+            `;
+            
+            printAsPDF(printContent, 'تقرير');
+        }
+
+        // طباعة كملف PDF (يعمل على الجوال)
+        function printAsPDF(content, filename) {
+            // إذا كان المستخدم على جهاز محمول، نقدم خيار الحفظ كملف PDF
+            if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                const blob = new Blob([content], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = filename + '.pdf';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                // تحرير الذاكرة
+                setTimeout(() => URL.revokeObjectURL(url), 100);
+            } else {
+                // إذا كان على كمبيوتر، نستخدم الطباعة العادية
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(content);
+                printWindow.document.close();
+                printWindow.focus();
+                setTimeout(() => {
+                    printWindow.print();
+                    printWindow.close();
+                }, 500);
+            }
+        
+        }
+    </script>
+</body>
+</html>
