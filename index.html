@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <title>نظام إدارة مجموعات الدرس</title>
     <style>
         body {
@@ -580,6 +582,22 @@
         // تخزين البيانات
         let students = JSON.parse(localStorage.getItem('students')) || [];
         let payments = JSON.parse(localStorage.getItem('payments')) || [];
+          // تكوين Firebase
+  const firebaseConfig = {
+    apiKey: "your-api-key",
+    authDomain: "your-project-id.firebaseapp.com",
+    databaseURL: "https://your-project-id.firebaseio.com",
+    projectId: "your-project-id",
+    storageBucket: "your-project-id.appspot.com",
+    messagingSenderId: "your-sender-id",
+    appId: "your-app-id"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  
+  // الحصول على مرجع لقاعدة البيانات
+  const database = firebase.database();
 
         // دالة لتحويل تنسيق التاريخ من YYYY-MM-DD إلى DD/MM/YYYY
         function formatDate(dateString) {
